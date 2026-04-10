@@ -1,0 +1,387 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the SheetToTasks AI application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "googleId": {
+          "type": "string",
+          "description": "The Google ID of the user from Firebase Authentication."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "googleId"
+      ]
+    },
+    "Spreadsheet": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Spreadsheet",
+      "type": "object",
+      "description": "Represents a spreadsheet uploaded by the user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the spreadsheet entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Spreadsheet)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the uploaded spreadsheet file."
+        },
+        "uploadDate": {
+          "type": "string",
+          "description": "Date and time when the spreadsheet was uploaded.",
+          "format": "date-time"
+        },
+        "fileType": {
+          "type": "string",
+          "description": "The uploaded spreadsheet file type."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "uploadDate",
+        "fileType"
+      ]
+    },
+    "MappingTemplate": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MappingTemplate",
+      "type": "object",
+      "description": "Represents a mapping template created by the user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the mapping template entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N MappingTemplate)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the mapping template."
+        },
+        "templateData": {
+          "type": "string",
+          "description": "JSON string containing the mapping configuration (column mappings, date formats, etc.)."
+        },
+        "description": {
+          "type": "string",
+          "description": "A user-friendly description of what the template does."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "templateData"
+      ]
+    },
+    "TaskSync": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TaskSync",
+      "type": "object",
+      "description": "Represents a synchronization event between a spreadsheet and a task management platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the task sync event."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N TaskSync)"
+        },
+        "spreadsheetId": {
+          "type": "string",
+          "description": "Reference to Spreadsheet. (Relationship: Spreadsheet 1:N TaskSync)"
+        },
+        "mappingTemplateId": {
+          "type": "string",
+          "description": "Reference to MappingTemplate. (Relationship: MappingTemplate 1:N TaskSync)"
+        },
+        "syncDate": {
+          "type": "string",
+          "description": "Date and time when the synchronization occurred.",
+          "format": "date-time"
+        },
+        "destinationPlatform": {
+          "type": "string",
+          "description": "The task management platform to which the tasks were synced (e.g., 'Google Tasks', 'Notion', 'Todoist')."
+        },
+        "syncStatus": {
+          "type": "string",
+          "description": "Status of the synchronization (e.g., 'Success', 'Partial Failure', 'Failure')."
+        },
+        "successCount": {
+          "type": "number",
+          "description": "The number of tasks successfully exported."
+        },
+        "failureCount": {
+          "type": "number",
+          "description": "The number of tasks that failed to export."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "spreadsheetId",
+        "mappingTemplateId",
+        "syncDate",
+        "destinationPlatform",
+        "syncStatus",
+        "successCount",
+        "failureCount"
+      ]
+    },
+    "GoogleTasksIntegration": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "GoogleTasksIntegration",
+      "type": "object",
+      "description": "Represents a Google Tasks integration for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Google Tasks integration entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:1 GoogleTasksIntegration)"
+        },
+        "accessToken": {
+          "type": "string",
+          "description": "OAuth 2.0 access token for Google Tasks API."
+        },
+        "refreshToken": {
+          "type": "string",
+          "description": "OAuth 2.0 refresh token for Google Tasks API."
+        },
+        "expirationDate": {
+          "type": "string",
+          "description": "Date and time when the access token expires.",
+          "format": "date-time"
+        },
+        "taskListId": {
+          "type": "string",
+          "description": "ID of the Google Tasks list to sync to by default."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "accessToken",
+        "refreshToken",
+        "expirationDate",
+        "taskListId"
+      ]
+    },
+    "NotionIntegration": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "NotionIntegration",
+      "type": "object",
+      "description": "Represents a Notion integration for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Notion integration entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:1 NotionIntegration)"
+        },
+        "integrationToken": {
+          "type": "string",
+          "description": "Notion internal integration token."
+        },
+        "databaseId": {
+          "type": "string",
+          "description": "ID of the Notion database to sync to."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "integrationToken",
+        "databaseId"
+      ]
+    },
+    "TodoistIntegration": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TodoistIntegration",
+      "type": "object",
+      "description": "Represents a Todoist integration for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Todoist integration entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:1 TodoistIntegration)"
+        },
+        "apiToken": {
+          "type": "string",
+          "description": "Todoist API token."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "apiToken"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "google.com"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information. Path-based ownership ensures only the user can access their own profile.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/spreadsheets/{spreadsheetId}",
+        "definition": {
+          "entityName": "Spreadsheet",
+          "schema": {
+            "$ref": "#/backend/entities/Spreadsheet"
+          },
+          "description": "Stores spreadsheet metadata for each user. Path-based ownership ensures only the user can access their spreadsheets.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "spreadsheetId",
+              "description": "The unique identifier of the spreadsheet."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/mappingTemplates/{mappingTemplateId}",
+        "definition": {
+          "entityName": "MappingTemplate",
+          "schema": {
+            "$ref": "#/backend/entities/MappingTemplate"
+          },
+          "description": "Stores mapping templates created by each user. Path-based ownership ensures only the user can access their mapping templates.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "mappingTemplateId",
+              "description": "The unique identifier of the mapping template."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/taskSyncs/{taskSyncId}",
+        "definition": {
+          "entityName": "TaskSync",
+          "schema": {
+            "$ref": "#/backend/entities/TaskSync"
+          },
+          "description": "Stores task synchronization event logs for each user. Path-based ownership ensures only the user can access their task sync history.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "taskSyncId",
+              "description": "The unique identifier of the task sync event."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/googleTasksIntegration",
+        "definition": {
+          "entityName": "GoogleTasksIntegration",
+          "schema": {
+            "$ref": "#/backend/entities/GoogleTasksIntegration"
+          },
+          "description": "Stores Google Tasks integration details for each user. Path-based ownership ensures only the user can access their integration details.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/notionIntegration",
+        "definition": {
+          "entityName": "NotionIntegration",
+          "schema": {
+            "$ref": "#/backend/entities/NotionIntegration"
+          },
+          "description": "Stores Notion integration details for each user. Path-based ownership ensures only the user can access their integration details.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/todoistIntegration",
+        "definition": {
+          "entityName": "TodoistIntegration",
+          "schema": {
+            "$ref": "#/backend/entities/TodoistIntegration"
+          },
+          "description": "Stores Todoist integration details for each user. Path-based ownership ensures only the user can access their integration details.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, adhering to the core design principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). Authorization Independence is achieved through denormalization. For instance, any data requiring authorization based on user membership or ownership denormalizes the relevant user IDs or roles directly within the document or subcollection. Structural Segregation is used to group data with similar access patterns into dedicated collections. Access Modeling utilizes path-based ownership for user-specific data and membership maps for collaborative data. Explicit state modeling uses a `status` field where appropriate. This design avoids hierarchical `get()` calls in security rules, enabling atomic operations and improving debuggability. QAPs are addressed by segregating data based on access requirements, enabling efficient and secure list operations. The structure uses hierarchical paths to represent User 1:N relationships, ensuring clear ownership and simplified security rules."
+  }
+}
+    

@@ -1,0 +1,193 @@
+/**
+ * Core Philosophy: This ruleset enforces a strict user-ownership model. All data is
+ * private and belongs exclusively to the user who created it. There is no public or
+ * shared data.
+ *
+ * Data Structure: All application data is nested under the top-level `/users`
+ * collection. Each user's data, including spreadsheets, templates, sync history,
+ * and integration settings, is stored in subcollections or documents under their
+ * unique user path (`/users/{userId}`). This structure inherently enforces privacy
+ * and simplifies security logic.
+ *
+ * Key Security Decisions:
+ * - User Enumeration is Disabled: Listing the top-level `/users` collection is
+ *   explicitly forbidden to protect user privacy.
+ * - Strict Path-Based Ownership: Access to any document is granted only if the
+ *   requesting user's UID matches the `{userId}` segment in the document's path.
+ * - Relational Integrity: On document creation, rules verify that the internal
+ *   `userId` (or `id` on the user profile) matches the `userId` from the path,
+ *   ensuring data ownership is correctly and immutably established.
+ *
+ * Denormalization for Authorization: The entire security model is built on the
+ * principle of path-based authorization. The user's UID is part of the path for all
+ * their data, which is the most performant way to check for ownership as it avoids
+ * costly `get()` calls to other documents.
+ *
+ * Structural Segregation: The data model effectively uses structural segregation by
+ * placing all of a user's private data within their own document tree, completely
+ * isolating it from other users' data.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --------------------------------------------------------------------------
+    // Helper Functions
+    // --------------------------------------------------------------------------
+
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the authenticated user's UID matches the provided userId.
+     * This is the primary function for verifying document ownership.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if a document currently exists. Used for safe updates and deletes.
+     */
+    function isExistingDoc() {
+      return resource != null;
+    }
+
+    /**
+     * A composite check for update/delete operations, ensuring the user is the
+     * owner of a document that already exists.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && isExistingDoc();
+    }
+
+    /**
+     * Validates that the `userId` field within a new document's data matches
+     * the owner's UID from the path. Enforces relational integrity on creation.
+     */
+    function createsOwnData(userId) {
+      return isOwner(userId) && request.resource.data.userId == userId;
+    }
+
+    /**
+     * Enforces that the `userId` field of a document cannot be changed during
+     * an update operation.
+     */
+    function ownerIsImmutable() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    // --------------------------------------------------------------------------
+    // Collection Rules
+    // --------------------------------------------------------------------------
+
+    match /users/{userId} {
+      /**
+       * @description Controls access to a user's own profile document.
+       * @path /users/{userId}
+       * @allow An authenticated user creating their own profile. (create where auth.uid == userId)
+       * @deny An authenticated user trying to read another user's profile. (get where auth.uid != userId)
+       * @principle Restricts access to a user's own data tree and prevents user enumeration.
+       */
+      allow get: if isOwner(userId);
+      allow list: if false; // CRITICAL: Prevents enumerating all users.
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Controls access to a user's private spreadsheet metadata.
+       * @path /users/{userId}/spreadsheets/{spreadsheetId}
+       * @allow A user creating a spreadsheet record under their own profile. (create where auth.uid == userId)
+       * @deny Any user trying to access a spreadsheet they do not own. (get where auth.uid != userId)
+       * @principle Enforces document ownership for all operations within a user-owned subcollection.
+       */
+      match /spreadsheets/{spreadsheetId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if createsOwnData(userId);
+        allow update: if isExistingOwner(userId) && ownerIsImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's private mapping templates.
+       * @path /users/{userId}/mappingTemplates/{mappingTemplateId}
+       * @allow A user listing all mapping templates they have created. (list where auth.uid == userId)
+       * @deny A user attempting to delete another user's template. (delete where auth.uid != userId)
+       * @principle Enforces document ownership for all operations within a user-owned subcollection.
+       */
+      match /mappingTemplates/{mappingTemplateId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if createsOwnData(userId);
+        allow update: if isExistingOwner(userId) && ownerIsImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's private task synchronization history.
+       * @path /users/{userId}/taskSyncs/{taskSyncId}
+       * @allow A user creating a new task sync log entry under their profile. (create where auth.uid == userId)
+       * @deny A user attempting to read the sync history of another user. (get where auth.uid != userId)
+       * @principle Enforces document ownership for all operations within a user-owned subcollection.
+       */
+      match /taskSyncs/{taskSyncId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if createsOwnData(userId);
+        allow update: if isExistingOwner(userId) && ownerIsImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's private Google Tasks integration settings.
+       * @path /users/{userId}/googleTasksIntegration
+       * @allow The document owner creating their integration settings. (create where auth.uid == userId)
+       * @deny Any user trying to read another user's integration tokens. (get where auth.uid != userId)
+       * @principle Enforces document ownership for a singleton configuration document.
+       */
+      match /googleTasksIntegration {
+        allow get: if isOwner(userId);
+        allow list: if false; // Not a collection, explicitly deny list.
+        allow create: if createsOwnData(userId);
+        allow update: if isExistingOwner(userId) && ownerIsImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's private Notion integration settings.
+       * @path /users/{userId}/notionIntegration
+       * @allow The document owner updating their integration settings. (update where auth.uid == userId)
+       * @deny Any user trying to delete another user's integration settings. (delete where auth.uid != userId)
+       * @principle Enforces document ownership for a singleton configuration document.
+       */
+      match /notionIntegration {
+        allow get: if isOwner(userId);
+        allow list: if false; // Not a collection, explicitly deny list.
+        allow create: if createsOwnData(userId);
+        allow update: if isExistingOwner(userId) && ownerIsImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's private Todoist integration settings.
+       * @path /users/{userId}/todoistIntegration
+       * @allow The document owner creating or reading their API token. (get, create where auth.uid == userId)
+       * @deny A user trying to create integration settings for another user. (create where auth.uid != userId)
+       * @principle Enforces document ownership for a singleton configuration document.
+       */
+      match /todoistIntegration {
+        allow get: if isOwner(userId);
+        allow list: if false; // Not a collection, explicitly deny list.
+        allow create: if createsOwnData(userId);
+        allow update: if isExistingOwner(userId) && ownerIsImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+  }
+}
