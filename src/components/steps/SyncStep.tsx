@@ -3,7 +3,7 @@
 import { useSheetToTasks } from '@/context/SheetToTasksContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Download, CheckCircle, RefreshCw, ArrowLeft, History, AlertCircle, Link as LinkIcon, ExternalLink, Settings2, Trash2, Calendar, Globe, Database, Mail } from 'lucide-react';
+import { Download, CheckCircle, RefreshCw, ArrowLeft, History, AlertCircle, Link as LinkIcon, ExternalLink, Settings2, Trash2, Calendar, Globe, Database, Mail, MessageSquare } from 'lucide-react';
 import { exportAsCsv, exportAsJson, exportAsMarkdown } from '@/lib/export';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect, useMemo } from 'react';
