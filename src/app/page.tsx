@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowRight, Zap, Target, ShieldCheck, Mail, Sparkles, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/firebase/provider';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function LandingPage() {
   const { user } = useUser();
@@ -23,6 +24,7 @@ export default function LandingPage() {
             <Link href="#features" className="text-sm font-medium hover:text-primary transition-colors">Features</Link>
           </div>
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             {user ? (
               <Button asChild>
                 <Link href="/dashboard">
@@ -118,7 +120,7 @@ export default function LandingPage() {
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Ready to clear your backlog?</h2>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto">Join thousands of users who are automating their admin work every day.</p>
             <Button size="lg" variant="secondary" className="h-14 px-10 text-lg font-semibold" asChild>
-              <Link href="/login">Get Started for Free</Link>
+              <Link href="/login">Get Started Now</Link>
             </Button>
           </div>
         </section>
