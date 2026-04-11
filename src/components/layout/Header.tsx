@@ -45,7 +45,6 @@ export default function Header() {
 
           <div className="flex items-center gap-2 md:gap-4">
             <nav className="hidden md:flex items-center gap-6 mr-4">
-                <Link href="/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Pricing</Link>
                 {user && <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Dashboard</Link>}
             </nav>
             

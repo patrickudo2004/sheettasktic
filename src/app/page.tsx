@@ -21,7 +21,6 @@ export default function LandingPage() {
           </div>
           <div className="hidden md:flex items-center gap-8">
             <Link href="#features" className="text-sm font-medium hover:text-primary transition-colors">Features</Link>
-            <Link href="/pricing" className="text-sm font-medium hover:text-primary transition-colors">Pricing</Link>
           </div>
           <div className="flex items-center gap-4">
             {user ? (
@@ -60,7 +59,7 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                 <Button size="lg" className="h-14 px-8 text-lg" asChild>
                   <Link href="/login">
-                    Start Mapping for Free <ArrowRight className="ml-2 h-5 w-5" />
+                    Start Mapping Now <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" className="h-14 px-8 text-lg" asChild>
@@ -141,7 +140,6 @@ export default function LandingPage() {
             <div>
               <h4 className="font-bold mb-4">Product</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/pricing" className="hover:text-primary">Pricing</Link></li>
                 <li><Link href="/dashboard" className="hover:text-primary">Dashboard</Link></li>
               </ul>
             </div>

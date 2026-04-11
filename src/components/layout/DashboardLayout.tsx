@@ -26,9 +26,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Button variant="ghost" className="w-full justify-start font-medium bg-primary/10 text-primary hover:bg-primary/20" asChild>
                   <Link href="/dashboard"><LayoutDashboard className="mr-3 h-4 w-4" /> Dashboard</Link>
                 </Button>
-                <Button variant="ghost" className="w-full justify-start font-medium text-muted-foreground" asChild>
-                  <Link href="/pricing"><CreditCard className="mr-3 h-4 w-4" /> Subscription</Link>
-                </Button>
               </nav>
             </div>
 
@@ -52,9 +49,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <p className="text-xs text-muted-foreground leading-tight">
                   Connect your Notion account to sync tasks instantly with your team.
                 </p>
-                <Button variant="link" size="sm" className="p-0 h-4 text-xs font-bold mt-2 h-auto" asChild>
-                    <Link href="/pricing" className="flex items-center">Learn More <ExternalLink className="ml-1 h-3 w-3" /></Link>
-                </Button>
               </div>
             </div>
           </div>
@@ -66,28 +60,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
              {children}
           </div>
         </div>
-
-        {/* Right Sidebar - AD SPACE */}
-        <aside className="hidden xl:flex flex-col w-64 shrink-0">
-          <div className="sticky top-24 space-y-6">
-            <div className="bg-muted rounded-2xl border-2 border-dashed border-border h-[600px] flex flex-col items-center justify-center p-6 text-center">
-               <div className="text-muted-foreground space-y-2">
-                 <p className="text-xs font-bold uppercase tracking-widest">Sponsored</p>
-                 <div className="bg-background rounded w-full aspect-[160/600] mb-4 flex items-center justify-center border">
-                    <p className="text-xs italic p-4 text-muted-foreground">Ad Slot (Pro users can hide this)</p>
-                 </div>
-                 <p className="text-xs italic max-w-[150px] mx-auto">Want to advertise here? Contact support@sheettasktic.ai</p>
-               </div>
-            </div>
-            
-            <div className="p-4 bg-card rounded-xl border shadow-sm text-center">
-               <p className="text-xs text-muted-foreground mb-2">Hate ads?</p>
-               <Button variant="outline" size="sm" className="w-full font-bold" asChild>
-                  <Link href="/pricing">Go Ad-Free</Link>
-               </Button>
-            </div>
-          </div>
-        </aside>
 
       </div>
     </div>
