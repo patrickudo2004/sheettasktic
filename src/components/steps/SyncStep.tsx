@@ -26,11 +26,10 @@ import { Label } from "@/components/ui/label";
 
 // Import Adapters
 import { GoogleTasksAdapter } from '@/lib/sync/adapters/GoogleTasksAdapter';
-import { NotionAdapter } from '@/lib/sync/adapters/NotionAdapter';
-import { MicrosoftTodoAdapter } from '@/lib/sync/adapters/MicrosoftTodoAdapter';
-import { GoogleCalendarAdapter } from '@/lib/sync/adapters/GoogleCalendarAdapter';
-import { MicrosoftCalendarAdapter } from '@/lib/sync/adapters/MicrosoftCalendarAdapter';
-import { SyncProvider } from '@/lib/sync/SyncProvider';
+import { JiraAdapter } from '@/lib/sync/adapters/JiraAdapter';
+import { HubSpotAdapter } from '@/lib/sync/adapters/HubSpotAdapter';
+import { SlackAdapter } from '@/lib/sync/adapters/SlackAdapter';
+import { SyncManager } from '@/lib/sync/SyncManager';
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
   'google-tasks': <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5"><title>Google Tasks</title><path d="M12.438 12L7.125 6.635l-1.05 1.05L10.338 12l-4.263 4.315 1.05 1.05L12.438 12zM18 6.685l-1.05-1.05-4.263 4.315 1.05 1.05L18 6.685zm0 9.68l-4.263-4.315 1.05-1.05L18 15.315l1.05 1.05-1.05-1.05z" fill="currentColor"/></svg>,
@@ -38,6 +37,9 @@ const PLATFORM_ICONS: Record<string, React.ReactNode> = {
   'microsoft-todo': <Mail className="h-5 w-5" />,
   'microsoft-calendar': <Calendar className="h-5 w-5" />,
   'google-calendar': <Calendar className="h-5 w-5" />,
+  'jira': <Settings2 className="h-5 w-5" />,
+  'hubspot': <Globe className="h-5 w-5" />,
+  'slack': <MessageSquare className="h-5 w-5" />,
 };
 
 export default function SyncStep() {
@@ -48,8 +50,15 @@ export default function SyncStep() {
   const [syncing, setSyncing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedProviders, setSelectedProviders] = useState<string[]>(['google-tasks']);
+  
+  // Dialog States
   const [isNotionDialogOpen, setIsNotionDialogOpen] = useState(false);
+  const [isJiraDialogOpen, setIsJiraDialogOpen] = useState(false);
+  const [isSlackDialogOpen, setIsSlackDialogOpen] = useState(false);
+  
   const [notionConfig, setNotionConfig] = useState({ token: '', databaseId: '' });
+  const [jiraConfig, setJiraConfig] = useState({ token: '', siteId: '', projectKey: '' });
+  const [slackConfig, setSlackConfig] = useState({ webhookUrl: '' });
 
   // Initialize adapters
   const providers = useMemo(() => [
@@ -58,6 +67,9 @@ export default function SyncStep() {
     new MicrosoftTodoAdapter(),
     new MicrosoftCalendarAdapter(),
     new GoogleCalendarAdapter(auth),
+    new JiraAdapter(),
+    new HubSpotAdapter(),
+    new SlackAdapter(),
   ], [auth]);
 
   const [connectedIds, setConnectedIds] = useState<string[]>([]);
@@ -72,6 +84,14 @@ export default function SyncStep() {
     try {
       if (provider.id === 'notion') {
         setIsNotionDialogOpen(true);
+        return;
+      }
+      if (provider.id === 'jira') {
+        setIsJiraDialogOpen(true);
+        return;
+      }
+      if (provider.id === 'slack') {
+        setIsSlackDialogOpen(true);
         return;
       }
       
@@ -106,6 +126,26 @@ export default function SyncStep() {
     }
   };
 
+  const saveJiraConfig = () => {
+    const jira = providers.find(p => p.id === 'jira') as JiraAdapter;
+    if (jira) {
+      jira.setCredentials(jiraConfig.token, jiraConfig.siteId, jiraConfig.projectKey);
+      setConnectedIds(prev => [...prev, 'jira']);
+      setIsJiraDialogOpen(false);
+      toast({ title: "Jira Connected!" });
+    }
+  };
+
+  const saveSlackConfig = () => {
+    const slack = providers.find(p => p.id === 'slack') as SlackAdapter;
+    if (slack) {
+      slack.setWebhookUrl(slackConfig.webhookUrl);
+      setConnectedIds(prev => [...prev, 'slack']);
+      setIsSlackDialogOpen(false);
+      toast({ title: "Slack Hook Connected!" });
+    }
+  };
+
   const handleSyncAll = async () => {
     if (selectedProviders.length === 0) {
       toast({ title: "Select a provider", description: "Choose at least one connected service to sync.", variant: "destructive" });
@@ -115,13 +155,20 @@ export default function SyncStep() {
     setSyncing('active');
     setError(null);
     
+    // Use the SyncManager for concurrent processing
+    const manager = new SyncManager(5); // 5 concurrent tasks
+
     for (const providerId of selectedProviders) {
       const provider = providers.find(p => p.id === providerId);
       if (!provider) continue;
 
       try {
-        toast({ title: `Syncing with ${provider.name}...` });
-        const result = await provider.sync(tasks);
+        toast({ title: `Syncing with ${provider.name}...`, description: `Using smart batching for ${tasks.length} tasks.` });
+        
+        const result = await manager.sync(provider, tasks, (progress) => {
+            // We could show a progress bar here if we wanted
+            console.log(`${provider.name} progress: ${progress.percent}%`);
+        });
         
         if (result.success) {
           toast({
@@ -260,6 +307,79 @@ export default function SyncStep() {
         <Button variant="ghost" onClick={reset} className="text-muted-foreground"><History className="mr-2 h-4 w-4" />Start Over</Button>
       </CardFooter>
 
+      {/* Jira Configuration Dialog */}
+      <Dialog open={isJiraDialogOpen} onOpenChange={setIsJiraDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Connect Jira Cloud</DialogTitle>
+            <DialogDescription>
+              Configure Jira to create issues automatically.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="jira_token">OAuth / API Token</Label>
+              <Input 
+                id="jira_token" 
+                type="password" 
+                value={jiraConfig.token}
+                onChange={e => setJiraConfig(prev => ({ ...prev, token: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="jira_site">Cloud ID (Site ID)</Label>
+              <Input 
+                id="jira_site" 
+                placeholder="e.g. 1a2b3c..." 
+                value={jiraConfig.siteId}
+                onChange={e => setJiraConfig(prev => ({ ...prev, siteId: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="jira_proj">Project Key</Label>
+              <Input 
+                id="jira_proj" 
+                placeholder="e.g. PROJ" 
+                value={jiraConfig.projectKey}
+                onChange={e => setJiraConfig(prev => ({ ...prev, projectKey: e.target.value.toUpperCase() }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={saveJiraConfig} disabled={!jiraConfig.token || !jiraConfig.projectKey}>
+                Connect Jira
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Slack Configuration Dialog */}
+      <Dialog open={isSlackDialogOpen} onOpenChange={setIsSlackDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Connect Slack Hook</DialogTitle>
+            <DialogDescription>
+              Enter an Incoming Webhook URL to receive sync reports.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="slack_url">Webhook URL</Label>
+              <Input 
+                id="slack_url" 
+                placeholder="https://hooks.slack.com/services/..." 
+                value={slackConfig.webhookUrl}
+                onChange={e => setSlackConfig(prev => ({ ...prev, webhookUrl: e.target.value }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={saveSlackConfig} disabled={!slackConfig.webhookUrl}>
+                Connect Slack
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {/* Notion Configuration Dialog */}
       <Dialog open={isNotionDialogOpen} onOpenChange={setIsNotionDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">

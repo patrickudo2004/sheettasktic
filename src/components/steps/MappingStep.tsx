@@ -27,11 +27,14 @@ const TASK_FIELDS = [
 
 type FieldKey = typeof TASK_FIELDS[number]['key'];
 
+import { Progress } from '@/components/ui/progress';
+
 export default function MappingStep() {
   const { sheetData, setStep, setMappings, setTasks, reset } = useSheetToTasks();
   const [aiMappings, setAiMappings] = useState<Partial<IntelligentlyMapSpreadsheetHeadersOutput>>({});
   const [manualMappings, setManualMappings] = useState<Record<string, string[]>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [progress, setProgress] = useState(13);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -39,6 +42,12 @@ export default function MappingStep() {
       reset();
       return;
     }
+
+    // Progress animation
+    const progressInterval = setInterval(() => {
+      setProgress(prev => (prev >= 90 ? 90 : prev + Math.random() * 10));
+    }, 400);
+
     const runAiMapping = async () => {
       setIsLoading(true);
       try {
@@ -46,6 +55,7 @@ export default function MappingStep() {
           headers: sheetData.headers,
           sampleRows: sheetData.rows.slice(0, 3).map(row => row.map(cell => String(cell))),
         });
+        setProgress(100);
         setAiMappings(result);
         
         const initialManualMappings: Record<string, string[]> = {};
@@ -64,10 +74,13 @@ export default function MappingStep() {
           description: "Could not get suggestions from AI. Please map fields manually.",
         });
       } finally {
+        clearInterval(progressInterval);
         setIsLoading(false);
       }
     };
     runAiMapping();
+
+    return () => clearInterval(progressInterval);
   }, [sheetData, toast, reset]);
   
   const handleMultiSelectChange = (field: FieldKey, header: string, checked: boolean | 'indeterminate') => {
@@ -141,13 +154,24 @@ export default function MappingStep() {
       </CardHeader>
       <CardContent className="space-y-4">
         {isLoading ? (
-          <div className="space-y-6 pt-2">
-            {TASK_FIELDS.map(field => (
-              <div key={field.key} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center animate-pulse">
-                <div className="md:col-span-1"><Skeleton className="h-5 w-24" /><Skeleton className="h-4 w-40 mt-2" /></div>
-                <div className="md:col-span-2"><Skeleton className="h-10 w-full" /></div>
-              </div>
-            ))}
+          <div className="space-y-8 pt-4 pb-8">
+            <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-primary font-medium flex items-center gap-2 animate-pulse">
+                        <Wand2 className="h-4 w-4" /> AI is analyzing your spreadsheet...
+                    </span>
+                    <span className="text-muted-foreground font-mono">{Math.round(progress)}%</span>
+                </div>
+                <Progress value={progress} className="h-2" />
+            </div>
+            <div className="space-y-6 pt-4">
+              {TASK_FIELDS.map(field => (
+                <div key={field.key} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center animate-pulse">
+                  <div className="md:col-span-1"><Skeleton className="h-5 w-24" /><Skeleton className="h-4 w-40 mt-2" /></div>
+                  <div className="md:col-span-2"><Skeleton className="h-10 w-full" /></div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           TASK_FIELDS.map((field, index) => (
