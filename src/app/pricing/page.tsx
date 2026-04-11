@@ -10,7 +10,7 @@ const plans = [
     name: "Free",
     price: "$0",
     description: "Perfect for trying out the AI mapping.",
-    icon: <Zap className="h-6 w-6 text-slate-400" />,
+    icon: <Zap className="h-6 w-6 text-muted-foreground" />,
     features: [
       "2 sheet imports per day",
       "Max 50 rows per sheet",
@@ -60,16 +60,16 @@ const plans = [
 
 export default function PricingPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
+    <div className="flex flex-col min-h-screen bg-muted/30">
       <Header />
       
       <main className="flex-grow container mx-auto px-4 py-20">
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <h2 className="text-sm font-semibold text-primary tracking-wide uppercase">Pricing</h2>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-tight">
             Simple, transparent <span className="text-primary italic">pricing.</span>
           </h1>
-          <p className="text-xl text-slate-600">
+          <p className="text-xl text-muted-foreground">
             Choose the plan that fits your productivity vibe. No hidden fees.
           </p>
         </div>
@@ -78,7 +78,7 @@ export default function PricingPage() {
           {plans.map((plan) => (
             <div 
               key={plan.name} 
-              className={`relative flex flex-col p-8 bg-white border rounded-2xl shadow-sm transition-all hover:shadow-xl ${plan.popular ? 'ring-2 ring-primary scale-105 z-10' : ''}`}
+              className={`relative flex flex-col p-8 bg-card border rounded-2xl shadow-sm transition-all hover:shadow-xl ${plan.popular ? 'ring-2 ring-primary scale-105 z-10' : ''}`}
             >
               {plan.popular && (
                 <div className="absolute top-0 right-8 -translate-y-1/2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
@@ -89,18 +89,18 @@ export default function PricingPage() {
               <div className="mb-8">
                 <div className="flex items-center gap-3 mb-4">
                   {plan.icon}
-                  <h3 className="text-xl font-bold">{plan.name}</h3>
+                  <h3 className="text-xl font-bold text-card-foreground">{plan.name}</h3>
                 </div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  {plan.period && <span className="text-slate-500">{plan.period}</span>}
+                  <span className="text-4xl font-bold text-card-foreground">{plan.price}</span>
+                  {plan.period && <span className="text-muted-foreground">{plan.period}</span>}
                 </div>
-                <p className="mt-2 text-slate-500 text-sm leading-relaxed">{plan.description}</p>
+                <p className="mt-2 text-muted-foreground text-sm leading-relaxed">{plan.description}</p>
               </div>
 
               <ul className="flex-grow space-y-4 mb-8">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start text-sm text-slate-600">
+                  <li key={feature} className="flex items-start text-sm text-muted-foreground">
                     <Check className="h-5 w-5 text-green-500 mr-3 shrink-0" />
                     <span>{feature}</span>
                   </li>
@@ -119,7 +119,7 @@ export default function PricingPage() {
         </div>
 
         <div className="mt-20 text-center space-y-4">
-          <p className="text-slate-500 italic">"Processing millions of rows? Need a custom Enterprise plan?"</p>
+          <p className="text-muted-foreground italic">"Processing millions of rows? Need a custom Enterprise plan?"</p>
           <Link href="mailto:support@sheettasktic.ai" className="text-primary font-semibold hover:underline">
             Contact us for bulk pricing
           </Link>

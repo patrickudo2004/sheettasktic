@@ -45,16 +45,16 @@ export default function LandingPage() {
 
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="relative py-20 md:py-32 overflow-hidden bg-slate-50">
+        <section className="relative py-20 md:py-32 overflow-hidden bg-muted/30">
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center space-y-8">
               <div className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">
                 🚀 Now powered by Gemini 2.5 Flash
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 leading-tight">
+              <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground leading-tight">
                 Turn Spreadsheet Chaos into <span className="text-primary italic">Actionable Tasks.</span>
               </h1>
-              <p className="text-xl text-slate-600 leading-relaxed">
+              <p className="text-xl text-muted-foreground leading-relaxed">
                 Manually moving data from Excel to your To-Do list is dead. Use AI to map, refine, and sync your tasks in seconds.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -78,36 +78,36 @@ export default function LandingPage() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-24 bg-white">
+        <section id="features" className="py-24 bg-background">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
-              <h2 className="text-3xl font-bold tracking-tight md:text-4xl text-slate-900">Why use SheetTasktic?</h2>
+              <h2 className="text-3xl font-bold tracking-tight md:text-4xl text-foreground">Why use SheetTasktic?</h2>
               <p className="text-lg text-muted-foreground">The most intelligent way to manage your administrative workflow.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="p-8 rounded-2xl border bg-slate-50/50 hover:shadow-xl transition-shadow space-y-4">
+              <div className="p-8 rounded-2xl border bg-card hover:shadow-xl transition-shadow space-y-4">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                   <Zap className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-bold">Intelligent Mapping</h3>
-                <p className="text-slate-600">Our AI analyzes your sheet headers and contents to automatically detect titles, dates, and priorities. No manual cross-referencing required.</p>
+                <p className="text-muted-foreground">Our AI analyzes your sheet headers and contents to automatically detect titles, dates, and priorities. No manual cross-referencing required.</p>
               </div>
               
-              <div className="p-8 rounded-2xl border bg-slate-50/50 hover:shadow-xl transition-shadow space-y-4">
+              <div className="p-8 rounded-2xl border bg-card hover:shadow-xl transition-shadow space-y-4">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                   <Target className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-bold">Deep Sync</h3>
-                <p className="text-slate-600">Connect to Google Tasks, Microsoft To-Do, and Notion with one click. We ensure every row becomes a perfect card or task.</p>
+                <p className="text-muted-foreground">Connect to Google Tasks, Microsoft To-Do, and Notion with one click. We ensure every row becomes a perfect card or task.</p>
               </div>
               
-              <div className="p-8 rounded-2xl border bg-slate-50/50 hover:shadow-xl transition-shadow space-y-4">
+              <div className="p-8 rounded-2xl border bg-card hover:shadow-xl transition-shadow space-y-4">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                   <ShieldCheck className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-bold">Privacy First</h3>
-                <p className="text-slate-600">We don't store your spreadsheet data. It passes through our AI for processing and is deleted instantly. You own your data.</p>
+                <p className="text-muted-foreground">We don't store your spreadsheet data. It passes through our AI for processing and is deleted instantly. You own your data.</p>
               </div>
             </div>
           </div>
@@ -126,7 +126,7 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t py-12">
+      <footer className="bg-background border-t py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div className="col-span-2 space-y-4">
@@ -136,18 +136,18 @@ export default function LandingPage() {
                 </div>
                 <span className="text-xl font-bold tracking-tight">SheetTasktic</span>
               </div>
-              <p className="text-sm text-slate-500 max-w-xs">Built for the modern worker who values time over manual entry.</p>
+              <p className="text-sm text-muted-foreground max-w-xs">Built for the modern worker who values time over manual entry.</p>
             </div>
             <div>
               <h4 className="font-bold mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-slate-500">
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="/pricing" className="hover:text-primary">Pricing</Link></li>
                 <li><Link href="/dashboard" className="hover:text-primary">Dashboard</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-bold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-slate-500">
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="/privacy" className="hover:text-primary">Privacy Policy</Link></li>
                 <li><Link href="/terms" className="hover:text-primary">Terms of Service</Link></li>
               </ul>

@@ -4,10 +4,10 @@ import Header from '@/components/layout/Header';
 
 export default function TermsPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-16">
-        <div className="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-sm border">
+        <div className="max-w-3xl mx-auto bg-card p-8 md:p-12 rounded-2xl shadow-sm border">
           <h1 className="text-3xl font-bold mb-8">Terms of Service</h1>
           <p className="text-muted-foreground mb-6">Last Updated: April 11, 2026</p>
           
